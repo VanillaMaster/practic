@@ -10,7 +10,7 @@ class Table {
         name:"API_search",
         column:"A",
         minRow:2,
-        maxRow:3,
+        maxRow:51,
     };
     #searchQueue = {
         freeIndexes:[],
@@ -32,7 +32,7 @@ class Table {
                 credentials.client_email,
                 null,
                 credentials.private_key,
-                ['https://www.googleapis.com/auth/spreadsheets']    
+                ['https://www.googleapis.com/auth/spreadsheets']
             );
             this.#client.authorize((err,token)=>{
                 if (err) { console.log(err); reject();} else {
@@ -101,7 +101,7 @@ class Table {
             resource: { range: range, majorDimension: "ROWS", values: data },},
             (err, response) => {
             if (err) { console.error(err); reject(err); } else {
-                //console.log(response);
+                console.log(response);
                 resolve(response);
             }}
         );
@@ -115,7 +115,7 @@ class Table {
             range: range },
             (err, response) => {
             if (err) { console.error(err); reject(err); } else {
-                //console.log(response);
+                console.log(response);
                 resolve(response.data);  
             }}
         );
