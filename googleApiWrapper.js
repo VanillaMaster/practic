@@ -2,8 +2,11 @@ const {google} = require('googleapis');
 const sheets = google.sheets('v4');
 
 class APIWrapper{
-    static maxReq = 2;
-    static delay = 1_000;
+    static maxReq = 2;//        <=========
+    static delay = 2_000;//     <=========
+
+    static exp = RegExp(/[0-9]+$/);
+
     #client;
     #isAuthorized = false;
 
@@ -16,7 +19,7 @@ class APIWrapper{
         name:"API_search",
         column:"A",
         minRow:2,
-        maxRow:51,
+        maxRow:3,
     };
 
     constructor(credentials){
@@ -28,7 +31,7 @@ class APIWrapper{
         );
 
         for (let i = this.#searchRequestOptoins.maxRow; i >= this.#searchRequestOptoins.minRow; i--) {
-            this.#searchRequestFreeSlots.push(i);
+            this.#searchRequestFreeSlots.push(i.toString());
         }
     }
 
@@ -48,24 +51,36 @@ class APIWrapper{
     }
 
     
-    async execute(expression){
-        let req = new SearchRequestInstance(expression);
-
-        if (this.#searchRequestSlots.length == 0) {
-            this.#searchRequestSlotQueue.push(req);
-            this.#globalRequestQueue.push(req);
-        } else {
-            let index = this.#searchRequestSlots.pop();
-            req.range = `${this.#searchRequestOptoins.name}!${this.#searchRequestOptoins.column}${index}:${this.#searchRequestOptoins.column}${index}`
-            
-            if(this.#reqCounter <= this.maxReq){
-                this.#reqCounter++;
-
-            } else {
-                this.#globalRequestQueue.push(req);    
+    async execute(ID,expression){
+        let setResult = await new Promise((resolve,reject)=>{
+            let req = new SetRequestInstance(ID,expression,"USER_ENTERED",resolve,reject);
+            req.onReady = (it) => {
+                if(this.#reqCounter < APIWrapper.maxReq){
+                    this.#reqCounter++;
+                    this.#set(it);
+                }
             }
-        }
+            this.#globalRequestQueue.push(req);
 
+            if (this.#searchRequestFreeSlots.length == 0) {
+                this.#searchRequestSlotQueue.push(req);
+            } else {
+                let slot = this.#searchRequestFreeSlots.pop();
+                req.setRange(`${this.#searchRequestOptoins.name}!${this.#searchRequestOptoins.column}${slot}:${this.#searchRequestOptoins.column}${slot}`);
+            }
+        });
+        let range = setResult.updatedRange;
+        let slot = APIWrapper.exp.exec(range);
+        if (!(slot === null)) {slot = slot[0];}
+        //console.log(setResult.updatedRange); 
+        //console.log(slot);
+        let getRequest = await this.get(ID,range);
+        if (this.#searchRequestSlotQueue.length == 0) {
+            this.#searchRequestFreeSlots.push(slot);
+        } else {
+            this.#searchRequestSlotQueue.shift().setRange(range);
+        }
+        return getRequest;
     }
     
 
@@ -107,7 +122,7 @@ class APIWrapper{
             range: getRequest.range },
             (err, response) => {
             if (err) { console.error(err); getRequest.reject(); } else {
-                console.log(response.status);
+                //console.log(response.status);
                 setTimeout(()=>{this.#requestCallBack()}, APIWrapper.delay);
                 getRequest.resolve(response.data);  
             }}
@@ -164,6 +179,7 @@ class GetRequestInstance{
 }
 
 class SetRequestInstance{
+    onReady = null;
     range = null;
     constructor(ID,data,type,resolve,reject){
         this.ID = ID;
@@ -171,6 +187,10 @@ class SetRequestInstance{
         this.type = type;
         this.resolve = resolve;
         this.reject = reject;
+    }
+    setRange(range){
+        this.range = range;
+        if (this.onReady instanceof Function) this.onReady(this);
     }
     isReady(){
         return !(this.range === null);

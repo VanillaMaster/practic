@@ -28,10 +28,15 @@ async function main() {
 	//a.get(ID,"API_search!E8").then(data=>{console.log(data);});
 	//a.set()
 
+	a.execute(ID,[[`=IFNA(MATCH(${1844};${"'Клиенты'!B4:B"};0);"null")`]]).then(data=>{console.log(data);});
+	a.execute(ID,[[`=IFNA(MATCH(${1845};${"'Клиенты'!B4:B"};0);"null")`]]).then(data=>{console.log(data);});
+	a.execute(ID,[[`=IFNA(MATCH(${1846};${"'Клиенты'!B4:B"};0);"null")`]]).then(data=>{console.log(data);});
+	//a.execute(ID,[[`data-002`]]).then(data=>{console.log(data);});
+	//a.execute(ID,[[`data-003`]]).then(data=>{console.log(data);});
 
-	for(let i = 0; i<6; i++){
-		a.set(ID,"API_search!E8",[[`data:${i}`]]).then(data=>{console.log(data);});
-		a.get(ID,"API_search!E8").then(data=>{console.log(data);});
+	for(let i = 0; i<5; i++){
+		//a.set(ID,"API_search!E8",[[`data:${i}`]]).then(data=>{console.log(data);});
+		//a.get(ID,"API_search!E8").then(data=>{console.log(data);});
 	}
 
 
