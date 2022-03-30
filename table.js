@@ -56,7 +56,7 @@ class Table {
                 let row = parseInt( (await this.#get(range)).values[0][0] );
                 if (!isNaN(row)) {
                     row+= Table.searchByIdShift();
-                    resolve(new Client(row));
+                    resolve(new Client(row,this.#client));
                 } else {
                     resolve(null);
                 }
