@@ -2,8 +2,8 @@ const {google} = require('googleapis');
 const sheets = google.sheets('v4');
 
 class APIWrapper{
-    static maxReq = 2;//        <=========
-    static delay = 2_000;//     <=========
+    static maxReq = 2;//        <========= TODO: replace to: 100 
+    static delay = 2_000;//     <========= TODO: replace to: 100_000
 
     static exp = RegExp(/[0-9]+$/);
 
@@ -46,11 +46,6 @@ class APIWrapper{
         });
     }
 
-    async makeRequest(){
-
-    }
-
-    
     async execute(ID,expression){
         let setResult = await new Promise((resolve,reject)=>{
             let req = new SetRequestInstance(ID,expression,"USER_ENTERED",resolve,reject);
