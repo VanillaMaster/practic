@@ -16,16 +16,18 @@ class Table {
 
     async getClientById(id){
         if (this.#client === null) { return; }
-        let result = ( await this.#client.execute(this.#ID,[[Table.searchByIdQuery(id)]]) )?.values[0][0];
-        let row = parseInt(result) + Table.searchByIdShift()
-        return row;
+        let result = ( await this.#client.execute(this.#ID,[[Table.searchByIdQuery(id)]]) )?.values;
+        let row = parseInt(result) + Table.searchByIdShift();
+        return new Client(row,(data,range)=>{
+            this.#client.set(this.#ID,range,data);
+        });
     }
 
     static searchByIdQuery(ID){
-        return `=IFNA(MATCH(${ID};${"'Клиенты'!B4:B"};0);"null")`;
+        return `=IFNA(MATCH(${ID};${"'Клиенты'!B3:B"};0);"null")`;
     }
     static searchByIdShift(){
-        return 3;
+        return 2;
     }
 }
 
