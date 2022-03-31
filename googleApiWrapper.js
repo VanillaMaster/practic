@@ -2,13 +2,12 @@ const {google} = require('googleapis');
 const sheets = google.sheets('v4');
 
 class APIWrapper{
-    static maxReq = 2;//        <========= TODO: replace to: 100 
-    static delay = 2_000;//     <========= TODO: replace to: 100_000
+    static maxReq = 100;//        <========= TODO: replace to: 100 
+    static delay = 100_000;//     <========= TODO: replace to: 100_000
 
     static exp = RegExp(/[0-9]+$/);
 
     #client;
-    #isAuthorized = false;
 
     #reqCounter = 0;
 
@@ -19,16 +18,21 @@ class APIWrapper{
         name:"API_search",
         column:"A",
         minRow:2,
-        maxRow:3,
+        maxRow:21,
     };
 
-    constructor(credentials){
+    constructor(credentials,searchOptions={}){
         this.#client = new google.auth.JWT(
             credentials.client_email,
             null,
             credentials.private_key,
             ['https://www.googleapis.com/auth/spreadsheets']
         );
+
+        if ("name" in searchOptions) this.#searchRequestOptoins.name = searchOptions.name;
+        if ("column" in searchOptions) this.#searchRequestOptoins.column = searchOptions.column;
+        if ("minRow" in searchOptions) this.#searchRequestOptoins.minRow = searchOptions.minRow;
+        if ("maxRow" in searchOptions) this.#searchRequestOptoins.maxRow = searchOptions.maxRow;
 
         for (let i = this.#searchRequestOptoins.maxRow; i >= this.#searchRequestOptoins.minRow; i--) {
             this.#searchRequestFreeSlots.push(i.toString());
@@ -39,7 +43,6 @@ class APIWrapper{
         return new Promise((resolve,reject)=>{
             this.#client.authorize((err,token)=>{
                 if (err) { console.log(err); reject();} else {
-                    this.#isAuthorized = true;
                     resolve(token);
                 }
             });    
