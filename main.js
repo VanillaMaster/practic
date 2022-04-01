@@ -1,6 +1,6 @@
 // @ts-nocheck
 const key = require("./serviceaccountKey.json");
-const Table = require("./table");
+const Table = require("./src/table.js");
 const ID = '1bs4h6KIrePNFIzjrv2mUkL1GB7ycBh0TMUOHtrqjfr4'; //TODO: change to datrget sheet
 
 
