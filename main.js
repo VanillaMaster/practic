@@ -9,11 +9,13 @@ async function main() {
 	let table = new Table(ID);
 	await table.authorize(key);	
 
-	let Leomik = await table.getClientById(2);
-	Leomik.data.independent.sendOzonMsg.setValue(true);
-	Leomik.save();
-	console.log("saved");
+	//let Leomik = await table.getClientById(2);
+	//Leomik.data.independent.sendOzonMsg.setValue(true);
+	//Leomik.save();
+	//console.log("saved");
 	
+	let client = await table.createNewClient();
+	console.log(client.getRow());
 }
 
 main();
